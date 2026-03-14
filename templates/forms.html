@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Materials Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+        }
+        .navbar {
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: white !important;
+            margin-left:60px;
+        }
+        .btn-logout {
+            background: #ff4757;
+            border: none;
+            color: white;
+            transition: background 0.3s;
+        }
+        .btn-logout:hover {
+            background: #ff3742;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+          
+            background: linear-gradient(180deg, #2c3e50, #34495e);
+            color: white;
+            transition: left 0.3s;
+            z-index: 1000;
+            padding-top: 60px;
+        }
+        .sidebar.open {
+            left: 0;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 15px;
+            border-bottom: 1px solid #34495e;
+            transition: background 0.3s;
+        }
+        .sidebar a:hover {
+            background: #1abc9c;
+        }
+        .sidebar-toggle {
+            position: fixed;
+            top: 8px;
+            left: 20px;
+            z-index: 1001;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: background 0.3s;
+        }
+        .sidebar-toggle:hover {
+            background: #c0392b;
+        }
+        .card {
+            background: white;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 20px;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+        }
+        .card-header {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .card-header i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .material-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        .material-item:hover {
+            background: #e9ecef;
+        }
+        .material-item i {
+            margin-right: 10px;
+            color: #3498db;
+        }
+        .recent-uploads {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        .recent-item {
+            display: inline-block;
+            margin: 10px;
+            padding: 15px;
+            background: linear-gradient(45deg, #ff9ff3, #f368e0);
+            color: white;
+            border-radius: 10px;
+            text-align: center;
+            width: 200px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        .recent-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .recent-item i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
+        .overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#"><i class="fas fa-graduation-cap"></i> StudyHub</a>
+            <div class="d-flex">
+                <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                  <button type="submit" class="btn btn-logout">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Toggle Button -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <a href="/materials/assignment/"><i class="fas fa-clipboard-list"></i> Assignments</a>
+        <a href="/materials/notes/"><i class="fas fa-book"></i> Notes</a>
+        <a href="/materials/timetable/"><i class="fas fa-calendar-alt"></i> Timetable</a>
+        <a href="/materials/other/"><i class="fas fa-ellipsis-h"></i> Other</a>
+    </div>
+
+
+    <!-- Overlay for Sidebar -->
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        <h2 class="text-center text-white mb-4">Study Materials by Subject</h2>
+        
+        <!-- Recent Uploads Section -->
+        <div class="recent-uploads">
+            <h3 class="text-center mb-4" style="color: #333;"><i class="fas fa-clock"></i> Recent Uploads</h3>
+            <div class="text-center">
+                <div class="recent-item" onclick="viewMaterial('Python Assignment 1')">
+                    <i class="fab fa-python"></i>
+                    <div>Python Assignment 1</div>
+                    <small>Uploaded 2 hours ago</small>
+                </div>
+                <div class="recent-item" onclick="viewMaterial('Java Notes')">
+                    <i class="fas fa-coffee"></i>
+                    <div>Java Notes</div>
+                    <small>Uploaded 1 day ago</small>
+                </div>
+                <div class="recent-item" onclick="viewMaterial('Cloud Computing Quiz')">
+                    <i class="fas fa-cloud"></i>
+                    <div>Cloud Computing Quiz</div>
+                    <small>Uploaded 3 days ago</small>
+                </div>
+                <div class="recent-item" onclick="viewMaterial('.NET Assignment')">
+                    <i class="fas fa-cogs"></i>
+                    <div>.NET Assignment</div>
+                    <small>Uploaded 1 week ago</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Subject Card 1: Python -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fab fa-python"></i> Python
+                    </div>
+                    <div class="card-body">
+                        <div class="material-item">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Assignment 1: Data Structures</span>
+                        </div>
+                        <div class="material-item">
+                            <i class="fas fa-sticky-note"></i>
+                            <span>Notes: OOP Concepts</span>
+                        </div>
+                        <div class="material-item">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Quiz: Python Basics</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Subject Card 2: Java -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-coffee"></i> Java
+                    </div>
+                    <div class="card-body">
+                        <div class="material-item">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Assignment 2: Multithreading</span>
+                        </div>
+                        <div class="material-item">
+                            <i class="fas fa-sticky-note"></i>
+                            <span>Notes: Collections</span>
+                        </div>
+                        <div class="material-item">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Quiz: Java Exceptions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Subject Card 3: Cloud Computing -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-cloud"></i> Cloud Computing
+                    </div>
+                    <div class="card-body">
+                        <div class="material-item">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Assignment 3: AWS Basics</span>
+                        </div>
+                        <div class="material-item">
+                            <i class="fas fa-sticky-note"></i>
+                            <span>Notes: Virtualization</span>
+                        </div>
+                        <div class="material-item">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Quiz: Cloud Security</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Subject Card 4: .NET -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-cogs"></i> .NET
+                    </div>
+                    <div class="card-body">
+                        <div class="material-item">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Assignment 4: ASP.NET Core</span>
+                        </div>
+                        <div class="material-item">
+                            <i class="fas fa-sticky-note"></i>
+                            <span>Notes: Entity Framework</span>
+                        </div>
+                        <div class="material-item">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Quiz: C# Fundamentals</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Subject Card 5: Cyber Security & Law -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-shield-alt"></i> Cyber Security & Law
+                    </div>
+                    <div class="card-body">
+                        <div class="material-item">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Assignment 5: Encryption</span>
+                        </div>
+                        <div class="material-item">
+                            <i class="fas fa-sticky-note"></i>
+                            <span>Notes: Ethical Hacking</span>
+                        </div>
+                        <div class="material-item">
+                            <i class="fas fa-question-circle"></i>
+                            <span>Quiz: Cyber Threats</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        }
+
+        function logout() {
+            alert('Logged out successfully!');
+            // Add actual logout logic here, e.g., redirect to login page
+        }
+
+        function viewMaterial(materialName) {
+            alert('Viewing: ' + materialName);
+            // Add logic to open or display the material, e.g., redirect or modal
+        }
+    </script>
+</body>
+</html>
